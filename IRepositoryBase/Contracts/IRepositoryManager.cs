@@ -10,10 +10,8 @@ namespace Repositories.Contracts
     public interface IRepositoryManager
     {
         IEmployeeRepository Employee { get; }
-        IManagerRepository Manager { get; }
         IEmployeeAndRoleRepository EmployeeAndRole { get; }
         IRoleRepository Role { get; }
-        IBossRepository Boss { get; }
         public void Save();  // for to save changes of all CRUD process as Dynamic
     }
 }

@@ -12,8 +12,8 @@ using Repositories.EFCore;
 namespace Repositories.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    [Migration("20230724142031_boss_and_maid")]
-    partial class boss_and_maid
+    [Migration("20230727062900_boss_and_maid_deleted")]
+    partial class boss_and_maid_deleted
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,27 +24,6 @@ namespace Repositories.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("Entities.Models.Boss", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Bosses");
-                });
 
             modelBuilder.Entity("Entities.Models.Employee", b =>
                 {
@@ -96,57 +75,6 @@ namespace Repositories.Migrations
                     b.ToTable("EmployeesAndRoles");
                 });
 
-            modelBuilder.Entity("Entities.Models.Maid", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BossId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BossId");
-
-                    b.ToTable("Maids");
-                });
-
-            modelBuilder.Entity("Entities.Models.Manager", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Factory")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Managers");
-                });
-
             modelBuilder.Entity("Entities.Models.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -184,22 +112,6 @@ namespace Repositories.Migrations
                             Id = 4,
                             RoleName = "Guest"
                         });
-                });
-
-            modelBuilder.Entity("Entities.Models.Maid", b =>
-                {
-                    b.HasOne("Entities.Models.Boss", "Boss")
-                        .WithMany("Maid")
-                        .HasForeignKey("BossId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Boss");
-                });
-
-            modelBuilder.Entity("Entities.Models.Boss", b =>
-                {
-                    b.Navigation("Maid");
                 });
 #pragma warning restore 612, 618
         }

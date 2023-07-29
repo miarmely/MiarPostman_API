@@ -14,13 +14,11 @@ namespace Services.Concretes
     public class EmployeeService : IEmployeeService
     {
         private readonly IRepositoryManager _manager;
-        private readonly EmployeeAndRoleService EmployeeAndRoleService;
 
 
         public EmployeeService(IRepositoryManager manager)
         {
             _manager = manager;
-            EmployeeAndRoleService = new EmployeeAndRoleService(manager);
         }
 
 
@@ -68,6 +66,30 @@ namespace Services.Concretes
         }
 
 
+        public IEnumerable<Employee> GetAllEmployees(bool trackChanges)
+        {
+            var entity = _manager.Employee.GetAllEmployees(trackChanges);
+
+            // when database is empty
+            if (entity is null)
+                throw new Exception("Empty Database");
+
+            return entity;
+        }
+
+
+        public Employee GetEmployeeById(int id, bool trackChanges)
+        {
+            var entity = _manager.Employee.GetEmployeeById(id, trackChanges);
+
+            // when not found
+            if (entity is null)
+                throw new Exception("Not Matched");
+
+            return entity;
+        }
+
+
         private IEnumerable<Employee> ControlOfRoleCondition(IEnumerable<Employee> employees, List<string> roles)
         {
             var roleIdList = new List<int>();
@@ -79,100 +101,50 @@ namespace Services.Concretes
                     .Id);
 
             // get employees that matched any role.
-                var entity = employees
-                .ToList()  // disconnect from employee
-                .Where(e =>_manager.EmployeeAndRole
-                    .FindByEmployeeId(e.Id, false)
-                    .FirstOrDefault(er => roleIdList.Contains(er.RoleId))
-                 != null);
+            var entity = employees
+            .ToList()  // disconnect from employee
+            .Where(e => _manager.EmployeeAndRole
+                .FindByEmployeeId(e.Id, false)
+                .FirstOrDefault(er => roleIdList.Contains(er.RoleId))
+             != null);
 
             return entity;
         }
 
 
-        private List<string> AddRoles(int employeeId)
-        {
-            // get employee and role relationships
-            var empAndRoles = _manager.EmployeeAndRole
-                .FindByEmployeeId(employeeId, false)
-                .ToList();  //  disconnect from database to close the DataReader.
-
-            var roleNames = new List<string>();
-
-            // add roles to list
-            foreach (var empAndRole in empAndRoles)
-                roleNames.Add(
-                    _manager.Role.GetById(empAndRole.RoleId, false)
-                    .RoleName);
-
-            return roleNames;
-        }
-
-
-        private IEnumerable<Employee> FillRoles(IEnumerable<Employee> entity)
-        {
-            return entity
-                .ToList()  //  disconnect from database to close the DataReader.
-                .Select(e => new Employee
-                {
-                    Id = e.Id,
-                    FullName = e.FullName,
-                    LastName = e.LastName,
-                    Job = e.Job,
-                    RegisterDate = e.RegisterDate,
-                    Salary = e.Salary,
-                    Roles = AddRoles(e.Id)
-                });
-        }
-
-
-        public IEnumerable<Employee> GetEmployees(int id, string fullName, string lastName, string job, int salary, string registerDate, List<string> roles, bool trackChanges)
+        public IEnumerable<Employee> GetEmployeesByCondition(int id, string fullName, string lastName, string job, int salary, string registerDate, List<string> roles, bool trackChanges)
         {
             // when database is empty
             if (_manager.Employee.Count == 0)
                 throw new Exception("Empty Database");
 
-            IEnumerable <Employee> entity;
 
-            // all employee display
-            if (id == -1 
-                && fullName.Equals("-1") 
-                && lastName.Equals("-1") 
-                && job.Equals("-1") 
-                && salary == -1 
-                && roles.Count == 0
-                && registerDate.Equals("-1"))
-                    entity = _manager.Employee.GetAllEmployees(false);
-
-            // display by condition
-            else
-            {
-                var date = registerDate.Equals("-1") ? new DateTime() 
-                    : Convert.ToDateTime(registerDate);  // new datetime() ~~> i initialized for can use "date" variable.
+            var date = registerDate.Equals("-1") ? new DateTime() 
+                : Convert.ToDateTime(registerDate);  // new datetime() ~~> i initialized for can use "date" variable.
                 
-                // search employee table 
-                entity = _manager.Employee.GetEmployeeByCondition(e =>
-                    (id == -1 ? true : e.Id == id)
-                    && (fullName.Equals("-1") ? true : e.FullName.Equals(fullName))
-                    && (lastName.Equals("-1") ? true : e.LastName.Equals(lastName))
-                    && (job.Equals("-1") ? true : e.Job.Equals(job))
-                    && (salary == -1 ? true : e.Salary == salary)
-                    && (registerDate.Equals("-1") ? true
-                        : !e.RegisterDate.Day.Equals(date.Day) ? false  // day control
-                            : !e.RegisterDate.Month.Equals(date.Month) ? false  // month control
-                                : !e.RegisterDate.Year.Equals(date.Year) ? false : true)    // year control
-                    , false);
+            // search employee table 
+            var entity = _manager.Employee.GetEmployeeByCondition(e =>
+                (id == -1 ? true : e.Id == id)
+                && (fullName.Equals("-1") ? true : e.FullName.Equals(fullName))
+                && (lastName.Equals("-1") ? true : e.LastName.Equals(lastName))
+                && (job.Equals("-1") ? true : e.Job.Equals(job))
+                && (salary == -1 ? true : e.Salary == salary)
+                && (registerDate.Equals("-1") ? true
+                    : !e.RegisterDate.Day.Equals(date.Day) ? false  // day control
+                        : !e.RegisterDate.Month.Equals(date.Month) ? false  // month control
+                            : !e.RegisterDate.Year.Equals(date.Year) ? false : true)    // year control
+                , false)
+                .AsEnumerable();
 
-                //when there is role condition.
-                if (roles.Count != 0)
-                    entity = ControlOfRoleCondition(entity, roles);
-            }
-
+            //when there is role condition.
+            if (roles.Count != 0)
+                entity = ControlOfRoleCondition(entity, roles);
+            
             // when nothing matched
             if (entity.Count() == 0)
                 throw new Exception("Not Matched");
 
-            return FillRoles(entity);
+            return entity;
         }
 
 
@@ -182,7 +154,7 @@ namespace Services.Concretes
 
             // when id not matched
             if (entity is null)
-                throw new Exception("Id Not Found");
+                throw new Exception("Not Matched");
 
             return entity;
         }
@@ -194,7 +166,7 @@ namespace Services.Concretes
 
             // when id not Found
             if (entity is null)
-                throw new Exception("Id Not Found");
+                throw new Exception("Not Matched");
 
             // update
             employee.Id = id;
@@ -209,7 +181,7 @@ namespace Services.Concretes
 
             // when id not Found
             if (entity is null)
-                throw new Exception("Id Not Found");
+                throw new Exception("Not Matched");
 
             employeePatch.ApplyTo(entity);
             _manager.Save();

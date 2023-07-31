@@ -10,8 +10,7 @@ namespace Services.Contracts
     public interface IServiceManager
     {
         public IEmployeeService EmployeeService { get; }
-        public IManagerService ManagerService { get; }
         public IRoleService RoleSevice { get; }
-        public IBossService BossService { get; }
+        public IEmployeeAndRoleService EmployeeAndRoleService { get; }
     }
 }   

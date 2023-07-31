@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Services.Contracts
 {
-    public interface IBossService
+    public interface IEmployeeAndRoleService
     {
-        public void CreateBoss(Boss boss);
-        public IEnumerable<Boss> GetAllBosses(bool trackChanges);
+        public void FillRoles(ref IEnumerable<Employee> employees);
+        public void FillRole(ref Employee employee);
     }
 }

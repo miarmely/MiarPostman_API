@@ -30,7 +30,7 @@ namespace Services.Concretes
             _manager.Save();
         }
 
-
+       
         public IEnumerable<Role> GetAllRoles(bool trackChanges)
         {
             var entity = _manager.Role.GetAllRoles(trackChanges);

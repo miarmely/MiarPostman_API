@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Entities.Models
+namespace Entities.RelationModels
 {
-    public class Maid
+    public class EmployeeAndRole
     {
         [Key]
         public int Id { get; set; }
-        public string FullName { get; set; }
-        public string LastName { get; set; }
-        public Boss? Boss { get; set; }
+        public int EmployeeId { get; set; }
+        public int RoleId { get; set; }
     }
 }

@@ -22,27 +22,6 @@ namespace Repositories.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Entities.Models.Boss", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Bosses");
-                });
-
             modelBuilder.Entity("Entities.Models.Employee", b =>
                 {
                     b.Property<int>("Id")
@@ -93,57 +72,6 @@ namespace Repositories.Migrations
                     b.ToTable("EmployeesAndRoles");
                 });
 
-            modelBuilder.Entity("Entities.Models.Maid", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("BossId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BossId");
-
-                    b.ToTable("Maids");
-                });
-
-            modelBuilder.Entity("Entities.Models.Manager", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Factory")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Managers");
-                });
-
             modelBuilder.Entity("Entities.Models.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -181,20 +109,6 @@ namespace Repositories.Migrations
                             Id = 4,
                             RoleName = "Guest"
                         });
-                });
-
-            modelBuilder.Entity("Entities.Models.Maid", b =>
-                {
-                    b.HasOne("Entities.Models.Boss", "Boss")
-                        .WithMany("Maid")
-                        .HasForeignKey("BossId");
-
-                    b.Navigation("Boss");
-                });
-
-            modelBuilder.Entity("Entities.Models.Boss", b =>
-                {
-                    b.Navigation("Maid");
                 });
 #pragma warning restore 612, 618
         }

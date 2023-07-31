@@ -1,4 +1,5 @@
 ﻿using Entities.Models;
+using Entities.RelationModels;
 using Repositories.Contracts;
 using Services.Contracts;
 using System;
@@ -17,7 +18,25 @@ namespace Services.Concretes
         public EmployeeAndRoleService(IRepositoryManager manager) =>
             _manager = manager;
 
-       
+
+        public void CreateEmployeeAndRole(Employee employee)
+        {
+            employee.Roles.ForEach(roleWithoutId =>
+            {
+                var role = _manager.Role.GetByRoleName(roleWithoutId.RoleName, false);
+
+                // create employeeAndRole
+                _manager.EmployeeAndRole.CreateEmployeeAndRole(new EmployeeAndRole()
+                {
+                    EmployeeId = employee.Id,
+                    RoleId = role.Id
+                });
+
+                _manager.Save();
+            });
+        }
+
+
         public void FillRoles(ref IEnumerable<Employee> employees)
         {
             employees = employees
@@ -33,7 +52,7 @@ namespace Services.Concretes
                     Roles = AddRoles(e.Id)
                 });
         }
-        
+
 
         public void FillRole(ref Employee employee)
         {
@@ -41,22 +60,53 @@ namespace Services.Concretes
         }
 
 
-        private List<string> AddRoles(int employeeId)
+        public void UpdateRelations(Employee employeeOnQuery)
         {
-            // get employee and role relationships
+            var empAndRoles = _manager.EmployeeAndRole.FindByEmployeeId(employeeOnQuery.Id, false);
+
+            // when exists on database but not exists on query
+            foreach (var empAndRole in empAndRoles)
+            {
+                var roleName = _manager.Role.GetById(empAndRole.RoleId, false)
+                    .RoleName;
+
+                // delete empAndRole
+                if (!employeeOnQuery.Roles.Any(r => r.RoleName
+                        .Equals(roleName)))
+                    _manager.EmployeeAndRole.DeleteEmployeeAndRole(empAndRole);
+            }
+
+            // when exists on query but not exists on database
+            foreach (var role in employeeOnQuery.Roles)
+            {
+                var roleId = _manager.Role.GetById(role.Id, false)
+                    .Id;
+
+                // add employeeAndRole
+                if (!empAndRoles.Any(e => e.RoleId == roleId))
+                    _manager.EmployeeAndRole.CreateEmployeeAndRole(new EmployeeAndRole()
+                    {
+                        EmployeeId = employeeOnQuery.Id,
+                        RoleId = roleId
+                    });
+            }
+        }
+
+
+        private List<Role> AddRoles(int employeeId)
+        {
+            // get employeeAndRole with matched employee
             var empAndRoles = _manager.EmployeeAndRole
                 .FindByEmployeeId(employeeId, false)
                 .ToList();  //  disconnect from database to close the DataReader.
 
-            var roleNames = new List<string>();
-
-            // add roles to list
+            // add roles
+            var roles = new List<Role>();
             foreach (var empAndRole in empAndRoles)
-                roleNames.Add(
-                    _manager.Role.GetById(empAndRole.RoleId, false)
-                    .RoleName);
+                roles.Add(
+                    _manager.Role.GetById(empAndRole.RoleId, false));
 
-            return roleNames;
+            return roles;
         }
     }
 }

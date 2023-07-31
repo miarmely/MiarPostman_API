@@ -13,6 +13,6 @@ namespace Entities.Models
         public DateTime RegisterDate { get; set; }
 
         [NotMapped]  // for not create column on database. (i can exclude this property from database thanks to this key)
-        public List<string> Roles { get; set; }
+        public List<Role>? Roles { get; set; }
     }
 }

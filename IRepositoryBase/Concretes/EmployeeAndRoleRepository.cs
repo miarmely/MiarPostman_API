@@ -1,4 +1,4 @@
-﻿using Entities.Models;
+﻿using Entities.RelationModels;
 using Repositories.Concrete;
 using Repositories.Contracts;
 using Repositories.EFCore;
@@ -24,8 +24,20 @@ namespace Repositories.Concretes
             base.FindAll(trackChanges)
             .OrderBy(k => k.Id);
 
+
         public IQueryable<EmployeeAndRole> FindByEmployeeId(int employeeId, bool trackChanges) =>
             base.FindWithCondition(e => e.EmployeeId == employeeId, trackChanges)
             .OrderBy(e => e.EmployeeId);
+
+
+        public EmployeeAndRole FindByEmployeeAndRoleId(int employeeId, int roleId, bool trackChanges) =>
+            base.FindWithCondition(e => e.EmployeeId == employeeId
+                && e.RoleId == roleId
+                , trackChanges)
+            .First();
+        
+
+        public void DeleteEmployeeAndRole(EmployeeAndRole empAndRole) =>
+            base.Delete(empAndRole);
     }
 }

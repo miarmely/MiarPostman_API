@@ -22,33 +22,11 @@ namespace Services.Concretes
         }
 
 
-        private void AddEmployeeAndRole(Employee employee)
-        {
-            // view roles of one employee
-            employee.Roles.ForEach(roleName =>
-            {
-                var role = _manager.Role.GetByRoleName(roleName, false);
-                var empAndRole = new EmployeeAndRole()
-                {
-                    EmployeeId = employee.Id,
-                    RoleId = role.Id
-                };
-
-                _manager.EmployeeAndRole.CreateEmployeeAndRole(empAndRole);
-                _manager.Save();
-            });
-        }
-
-
         public void CreateEmployee(Employee employee)
         {
-
             // add employee to database.
             _manager.Employee.CreateEmployee(employee);
-            _manager.Save();
-
-            // update EmployeeAndRole table
-            AddEmployeeAndRole(employee);
+            _manager.Save();            
         }
 
 
@@ -160,7 +138,7 @@ namespace Services.Concretes
         }
 
 
-        public void UpdateOneEmployee(int id, Employee employee, bool trackChanges)
+        public void UpdateOneEmployee(int id, ref Employee employee, bool trackChanges)
         {
             var entity = _manager.Employee.GetEmployeeById(id, trackChanges);
 
@@ -169,7 +147,7 @@ namespace Services.Concretes
                 throw new Exception("Not Matched");
 
             // update
-            employee.Id = id;
+            employee.RegisterDate = entity.RegisterDate;
             _manager.Employee.UpdateEmployee(employee);
             _manager.Save();
         }

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "63u/2NAOKkhPjGu5aELuRy3+jSgmxR07gGw+UBOn8Zm9WP1CVmIaeXR2bu5kD+jzwjl0PZQESurTiq6aExDpWA==",
+  "dgSpecHash": "+aXEEPC75ZuOITf8MVmanbKRpJkJicgHbXDJurWE3ZiOYONPHKjY+0hbcGkWLT5JZD3EeRq5O7B8x57AO5UxMw==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Mac\\Desktop\\SOFTWARE\\1__Software_Languages\\1__C#\\2__API\\1__Projects\\1__Postman\\1__API\\Repositories\\Repositories.csproj",
+  "projectFilePath": "C:\\Users\\Mac\\Desktop\\FactoryManagement_API\\Repositories\\Repositories.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Mac\\.nuget\\packages\\azure.core\\1.24.0\\azure.core.1.24.0.nupkg.sha512",
     "C:\\Users\\Mac\\.nuget\\packages\\azure.identity\\1.6.0\\azure.identity.1.6.0.nupkg.sha512",

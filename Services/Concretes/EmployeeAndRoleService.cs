@@ -62,7 +62,9 @@ namespace Services.Concretes
 
         public void UpdateRelations(Employee employeeOnQuery)
         {
-            var empAndRoles = _manager.EmployeeAndRole.FindByEmployeeId(employeeOnQuery.Id, false);
+            var empAndRoles = _manager.EmployeeAndRole
+                .FindByEmployeeId(employeeOnQuery.Id, false)
+                .ToList();
 
             // when exists on database but not exists on query
             foreach (var empAndRole in empAndRoles)
@@ -77,9 +79,9 @@ namespace Services.Concretes
             }
 
             // when exists on query but not exists on database
-            foreach (var role in employeeOnQuery.Roles)
+            foreach (var roleOnQuery in employeeOnQuery.Roles)
             {
-                var roleId = _manager.Role.GetById(role.Id, false)
+                var roleId = _manager.Role.GetByRoleName(roleOnQuery.RoleName, false)
                     .Id;
 
                 // add employeeAndRole
@@ -90,6 +92,8 @@ namespace Services.Concretes
                         RoleId = roleId
                     });
             }
+
+            _manager.Save();
         }
 
 

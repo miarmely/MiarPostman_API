@@ -100,8 +100,8 @@ namespace Services.Concretes
                 .FindByEmployeeId(employeeId, false)
                 .ToList();  //  disconnect from database to close the DataReader.
 
-            // add roles
             var roles = new List<Role>();
+
             foreach (var empAndRole in empAndRoles)
                 roles.Add(
                     _manager.Role.GetById(empAndRole.RoleId, false));

@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\EmployeeManagement_Sql.props" />
+</Project>

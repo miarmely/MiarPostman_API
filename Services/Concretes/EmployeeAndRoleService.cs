@@ -112,5 +112,12 @@ namespace Services.Concretes
 
             return roles;
         }
+
+
+        public void DeleteEmpAndRolesByEmployeeId(int employeeId)
+        {
+            var entity = _manager.EmployeeAndRole.FindByEmployeeId(employeeId, false);
+            _manager.EmployeeAndRole.DeleteEmployeeAndRoles(entity);
+        }
     }
 }

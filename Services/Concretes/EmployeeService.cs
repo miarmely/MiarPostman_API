@@ -26,20 +26,6 @@ namespace Services.Concretes
         {
             // add employee to database.
             _manager.Employee.CreateEmployee(employee);
-            _manager.Save();            
-        }
-
-
-        public void DeleteOneEmployee(int id, bool trackChanges)
-        {
-            var entity = _manager.Employee.GetEmployeeById(id, false);
-
-            // when id not matched
-            if (entity is null)
-                throw new Exception($"Id Not Found");
-
-            // delete
-            _manager.Employee.DeleteEmployee(entity);
             _manager.Save();
         }
 
@@ -68,56 +54,36 @@ namespace Services.Concretes
         }
 
 
-        private IEnumerable<Employee> ControlOfRoleCondition(IEnumerable<Employee> employees, List<string> roles)
-        {
-            var roleIdList = new List<int>();
-
-            // add role ids to list
-            foreach (var roleName in roles)
-                roleIdList.Add(
-                    _manager.Role.GetByRoleName(roleName, false)
-                    .Id);
-
-            // get employees that matched any role.
-            var entity = employees
-            .ToList()  // disconnect from employee
-            .Where(e => _manager.EmployeeAndRole
-                .FindByEmployeeId(e.Id, false)
-                .FirstOrDefault(er => roleIdList.Contains(er.RoleId))
-             != null);
-
-            return entity;
-        }
-
-
-        public IEnumerable<Employee> GetEmployeesByCondition(int id, string fullName, string lastName, string job, int salary, string registerDate, List<string> roles, bool trackChanges)
+        public IEnumerable<Employee> GetEmployeesByCondition(int? id, string? fullName, string? lastName, string? job, decimal? salary, List<string> roles, string? registerDate, bool trackChanges)
         {
             // when database is empty
             if (_manager.Employee.Count == 0)
                 throw new Exception("Empty Database");
 
+            // set format of registerDate
+            if (registerDate is not null)
+                registerDate = Convert
+                .ToDateTime(registerDate)
+                .ToString("dd.MM.yyyy");
 
-            var date = registerDate.Equals("-1") ? new DateTime() 
-                : Convert.ToDateTime(registerDate);  // new datetime() ~~> i initialized for can use "date" variable.
-                
             // search employee table 
             var entity = _manager.Employee.GetEmployeeByCondition(e =>
-                (id == -1 ? true : e.Id == id)
-                && (fullName.Equals("-1") ? true : e.FullName.Equals(fullName))
-                && (lastName.Equals("-1") ? true : e.LastName.Equals(lastName))
-                && (job.Equals("-1") ? true : e.Job.Equals(job))
-                && (salary == -1 ? true : e.Salary == salary)
-                && (registerDate.Equals("-1") ? true
-                    : !e.RegisterDate.Day.Equals(date.Day) ? false  // day control
-                        : !e.RegisterDate.Month.Equals(date.Month) ? false  // month control
-                            : !e.RegisterDate.Year.Equals(date.Year) ? false : true)    // year control
-                , false)
+                (id == null ? true : e.Id == id)
+                && (fullName == null ? true : e.FullName.Equals(fullName))
+                && (lastName == null ? true : e.LastName.Equals(lastName))
+                && (job == null ? true : e.Job.Equals(job))
+                && (salary == null ? true : e.Salary == salary)
+                && (registerDate == null ? true
+                    : e.RegisterDate
+                    .ToString("dd.MM.yyyy")
+                    .Equals(registerDate))
+                , trackChanges)
                 .AsEnumerable();
 
             //when there is role condition.
             if (roles.Count != 0)
                 entity = ControlOfRoleCondition(entity, roles);
-            
+
             // when nothing matched
             if (entity.Count() == 0)
                 throw new Exception("Not Matched");
@@ -163,6 +129,49 @@ namespace Services.Concretes
 
             employeePatch.ApplyTo(entity);
             _manager.Save();
+
+            return entity;
+        }
+
+
+        public void DeleteOneEmployee(int id)
+        {
+            var entity = _manager.Employee.GetEmployeeById(id, false);
+
+            // when id not matched
+            if (entity is null)
+                throw new Exception("Not Matched");
+
+            // delete
+            _manager.Employee.DeleteOneEmployee(entity);
+            _manager.Save();
+        }
+
+
+        public void DeleteEmployees(IEnumerable<Employee> entity)
+        {
+            _manager.Employee.DeleteEmployees(entity);
+            _manager.Save();
+        }
+
+
+        private IEnumerable<Employee> ControlOfRoleCondition(IEnumerable<Employee> employees, List<string> roles)
+        {
+            var roleIdList = new List<int>();
+
+            // add role ids to list
+            foreach (var roleName in roles)
+                roleIdList.Add(
+                    _manager.Role
+                    .GetByRoleName(roleName, false)
+                    .Id);
+
+            // get employees that matched any role.
+            var entity = employees
+                .ToList()  // disconnect from employee
+                .Where(e => _manager.EmployeeAndRole
+                    .FindByEmployeeId(e.Id, false)
+                    .Any(er => roleIdList.Contains(er.RoleId)));
 
             return entity;
         }

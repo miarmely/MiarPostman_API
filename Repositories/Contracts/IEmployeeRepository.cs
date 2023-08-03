@@ -17,6 +17,7 @@ namespace Repositories.Contracts
         public IQueryable<Employee> GetEmployeeByCondition(Expression<Func<Employee, bool>> expression, bool trackChanges);
         public IQueryable<Employee> GetAllEmployees(bool trackChanges);
         public void UpdateEmployee(Employee employee);
-        public void DeleteEmployee(Employee employee);
+        public void DeleteOneEmployee(Employee employee);
+        public void DeleteEmployees(IEnumerable<Employee> entity);
     }
 }

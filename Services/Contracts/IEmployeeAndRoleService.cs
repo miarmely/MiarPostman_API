@@ -13,5 +13,6 @@ namespace Services.Contracts
         public void FillRoles(ref IEnumerable<Employee> employees);
         public void FillRole(ref Employee employee);
         public void UpdateRelations(Employee employeeOnQuery);
+        public void DeleteEmpAndRolesByEmployeeId(int employeeId);
     }
 }

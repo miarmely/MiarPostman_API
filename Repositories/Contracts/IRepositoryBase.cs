@@ -12,5 +12,6 @@ namespace Repositories.Contracts
         public void Create(T entity);
         public void Update(T entity);
         public void Delete(T entity);
+        public void MultipleDelete(IEnumerable<T> entity);
     }
 }

@@ -16,5 +16,6 @@ namespace Repositories.Contracts
         public IQueryable<EmployeeAndRole> FindByEmployeeId(int employeeId, bool trackChanges);
         public EmployeeAndRole FindByEmployeeAndRoleId(int employeeId, int roleId, bool trackChanges);
         public void DeleteEmployeeAndRole(EmployeeAndRole empAndRole);
+        public void DeleteEmployeeAndRoles(IEnumerable<EmployeeAndRole> empAndRole);
     }
 }

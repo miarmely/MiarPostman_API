@@ -56,7 +56,6 @@ namespace EmployeeManagement_Sql.Controllers
                 var entity = _manager.EmployeeService.GetAllEmployees(false);
                 _manager.EmployeeAndRoleService.FillRoles(ref entity);
 
-                _logger.LogInformation("All Employees Displayed.");
                 return Ok(entity);
             }
 
@@ -81,7 +80,6 @@ namespace EmployeeManagement_Sql.Controllers
                 var entity = _manager.EmployeeService.GetEmployeeById(id, false);
                 _manager.EmployeeAndRoleService.FillRole(ref entity);
 
-                _logger.LogInformation($"Employee Who Id:{id} Displayed.");
                 return Ok(entity);
             }
 
@@ -98,18 +96,21 @@ namespace EmployeeManagement_Sql.Controllers
 
 
         [HttpGet("condition")]
-        public IActionResult GetEmployees([FromQuery(Name = "id")] int id, [FromQuery(Name = "fullName")] string fullName,
-            [FromQuery(Name = "lastName")] string lastName, [FromQuery(Name = "job")] string job, [FromQuery(Name = "salary")] int salary,
-            [FromQuery(Name = "registerDate")] string registerDate, [FromQuery(Name = "roles")] List<string> roles)  // display all employee informations
+        public IActionResult GetEmployees([FromQuery(Name = "id")] int? id,
+            [FromQuery(Name = "fullName")] string? fullName,
+            [FromQuery(Name = "lastName")] string? lastName,
+            [FromQuery(Name = "job")] string? job,
+            [FromQuery(Name = "salary")] decimal? salary,
+            [FromQuery(Name = "registerDate")] string? registerDate,
+            [FromQuery(Name = "roles")] List<string> roles)
         {
             // can be connection error with database 
             try
             {
-                // get employees and fill roles
-                var entity = _manager.EmployeeService.GetEmployeesByCondition(id, fullName, lastName, job, salary, registerDate, roles, false);
+                // get employees and fill 
+                var entity = _manager.EmployeeService.GetEmployeesByCondition(id, fullName, lastName, job, salary, roles, registerDate, false);
                 _manager.EmployeeAndRoleService.FillRoles(ref entity);
 
-                _logger.LogInformation("Employees Displayed.");
                 return Ok(entity);
             }
 
@@ -122,6 +123,7 @@ namespace EmployeeManagement_Sql.Controllers
                     case "Not Matched":
                         return _response.NotFound("Not Matched With Any Employee.");
                 }
+
                 _logger.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
@@ -136,9 +138,9 @@ namespace EmployeeManagement_Sql.Controllers
                 _manager.EmployeeService.UpdateOneEmployee(employee.Id, ref employee, false);
 
                 // when roles changed
-                if (employee.Roles.Count != 0)                    
-                    _manager.EmployeeAndRoleService.UpdateRelations(employee);  // 
-                
+                if (employee.Roles.Count != 0)
+                    _manager.EmployeeAndRoleService.UpdateRelations(employee);
+
                 _logger.LogWarning($"Employee Who Id:{employee.Id} Updated.");
                 return Ok(employee);
             }
@@ -156,7 +158,8 @@ namespace EmployeeManagement_Sql.Controllers
 
 
         [HttpPatch("{id:int}")]
-        public IActionResult PartiallyUpdateOneEmployee([FromRoute(Name = "id")] int id, [FromBody] JsonPatchDocument<Employee> employeePatch)
+        public IActionResult PartiallyUpdateOneEmployee([FromRoute(Name = "id")] int id, 
+            [FromBody] JsonPatchDocument<Employee> employeePatch)
         {
             try
             {
@@ -183,17 +186,52 @@ namespace EmployeeManagement_Sql.Controllers
         {
             try
             {
-                _manager.EmployeeService.DeleteOneEmployee(id, false);
+                _manager.EmployeeService.DeleteOneEmployee(id);
 
-                _logger.LogWarning($"Employee With id:{id} Deleted.");
+                _logger.LogWarning($"Employee Who Id:{id} Deleted!..");
                 return NoContent();
             }
 
             catch (Exception ex)
             {
-                // when id not found
+                // when id not matched
                 if (ex.Message.Equals("Not Matched"))
-                    return _response.NotFound($"Id:{id} Not Found.");
+                    return _response.NotFound($"Id:{id} Not Matched.");
+
+                _logger.LogError(ex.Message);
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+        [HttpDelete]
+        public IActionResult MultipleDelete([FromBody] Employee employee)
+        {
+            // add role names to list
+            var roleNames = new List<string>();
+            foreach (var role in employee.Roles)
+                roleNames.Append(role.RoleName);
+
+            try
+            {
+                // get matched employees
+                var entity = _manager.EmployeeService.GetEmployeesByCondition(employee.Id, employee.FullName, employee.LastName,
+                    employee.Job, employee.Salary, roleNames, employee.RegisterDate.ToString(), false);
+
+                //_manager.EmployeeService.DeleteEmployees(entity);
+                //_manager.EmployeeAndRoleService.DeleteEmpAndRolesByEmployeeId(employee.Id);
+
+                _logger.LogWarning("Some Employees Deleted.");
+                return NoContent();
+            }
+
+            catch (Exception ex)
+            {
+                switch (ex.Message)
+                {
+                    case "Empty Database": return _response.NotFound("Empty Database.");
+                    case "Not Matched": return _response.NotFound("Not Matched.");
+                }
 
                 _logger.LogError(ex.Message);
                 throw new Exception(ex.Message);

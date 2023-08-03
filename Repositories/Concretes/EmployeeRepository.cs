@@ -15,14 +15,12 @@ namespace Repositories.Concrete
         {}
 
 
-        public void CreateEmployee(Employee entity) => Create(entity);
-
-
-        public void DeleteEmployee(Employee entity) => Delete(entity);
+        public void CreateEmployee(Employee entity) =>
+            base.Create(entity);
 
 
         public IQueryable<Employee> GetAllEmployees(bool trackChanges) =>
-            FindAll(trackChanges)
+            base.FindAll(trackChanges)
             .OrderBy(e => e.Id);
 
 
@@ -32,11 +30,19 @@ namespace Repositories.Concrete
 
 
         public Employee? GetEmployeeById(int id, bool trackChanges) =>
-            FindWithCondition(e => e.Id == id, trackChanges)
+            base.FindWithCondition(e => e.Id == id, trackChanges)
             .FirstOrDefault();
 
 
-        public void UpdateEmployee(Employee entity) => Update(entity);
-        
+        public void UpdateEmployee(Employee entity) =>
+            base.Update(entity);
+
+
+        public void DeleteOneEmployee(Employee entity) =>
+            base.Delete(entity);
+
+
+        public void DeleteEmployees(IEnumerable<Employee> entity) =>
+            base.MultipleDelete(entity);            
     }
 }

@@ -39,11 +39,19 @@ namespace Repositories.Concrete
             _context.Set<T>().Where(expression).AsNoTracking();
 
 
-        public void Update(T entity) => _context.Set<T>().Update(entity);
+        public void Update(T entity) => 
+            _context.Set<T>()
+            .Update(entity);
 
 
-        public void Delete(T entity) => _context.Set<T>().Remove(entity);
+        public void Delete(T entity) => 
+            _context.Set<T>()
+            .Remove(entity);
+
+
+        public void MultipleDelete(IEnumerable<T> entity) =>
+            _context.Set<T>()
+            .RemoveRange(entity);
     }
 }
-
 // Note: If you use "AsNoTracking()", your query will more fast. So i use trackChanges.

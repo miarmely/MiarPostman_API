@@ -11,11 +11,11 @@ namespace Repositories.Contracts
 {
     public interface IEmployeeAndRoleRepository : IRepositoryBase<EmployeeAndRole>
     {
-        public void CreateEmployeeAndRole(EmployeeAndRole entity);
-        public IQueryable<EmployeeAndRole> FindAllEmployeesAndRoles(bool trackChanges);
-        public IQueryable<EmployeeAndRole> FindByEmployeeId(int employeeId, bool trackChanges);
-        public EmployeeAndRole FindByEmployeeAndRoleId(int employeeId, int roleId, bool trackChanges);
-        public void DeleteEmployeeAndRole(EmployeeAndRole empAndRole);
-        public void DeleteEmployeeAndRoles(IEnumerable<EmployeeAndRole> empAndRole);
+        void CreateEmployeeAndRole(EmployeeAndRole entity);
+        IQueryable<EmployeeAndRole> FindAllEmployeesAndRoles(bool trackChanges);
+        IQueryable<EmployeeAndRole> FindByEmployeeId(int employeeId, bool trackChanges);
+        EmployeeAndRole FindByEmployeeAndRoleId(int employeeId, int roleId, bool trackChanges);
+        void DeleteEmployeeAndRole(EmployeeAndRole empAndRole);
+        void DeleteEmployeeAndRoles(List<EmployeeAndRole> empAndRole);
     }
 }

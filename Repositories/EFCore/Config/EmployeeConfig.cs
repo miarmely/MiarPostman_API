@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Entities.Models;
+using Entities.DataModels;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 

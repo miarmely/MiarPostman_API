@@ -1,13 +1,8 @@
-﻿using Entities.Models;
+﻿using Entities.DataModels;
 using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Identity.Client;
 using Repositories.Contracts;
-using Repositories.Migrations;
 using Services.Contracts;
-using System.IO.Pipes;
+
 
 namespace Services.Concretes
 {
@@ -60,11 +55,10 @@ namespace Services.Concretes
             if (_manager.Employee.Count == 0)
                 throw new Exception("Empty Database");
 
-            // set format of registerDate
-            if (registerDate is not null)
-                registerDate = Convert
-                .ToDateTime(registerDate)
-                .ToString("dd.MM.yyyy");
+            // set registerDate
+            var date = registerDate is null ?
+                DateTime.MinValue
+                : Convert.ToDateTime(registerDate);
 
             // search employee table 
             var entity = _manager.Employee.GetEmployeeByCondition(e =>
@@ -74,9 +68,9 @@ namespace Services.Concretes
                 && (job == null ? true : e.Job.Equals(job))
                 && (salary == null ? true : e.Salary == salary)
                 && (registerDate == null ? true
-                    : e.RegisterDate
-                    .ToString("dd.MM.yyyy")
-                    .Equals(registerDate))
+                    : e.RegisterDate.Date != date.Date ? false  // day
+                        : e.RegisterDate.Month != date.Month ? false  // month
+                            : e.RegisterDate.Year != date.Year ? false : true) // year
                 , trackChanges)
                 .AsEnumerable();
 
@@ -104,9 +98,11 @@ namespace Services.Concretes
         }
 
 
-        public void UpdateOneEmployee(int id, ref Employee employee, bool trackChanges)
+        public void UpdateOneEmployee(Employee employee, bool trackChanges)
         {
-            var entity = _manager.Employee.GetEmployeeById(id, trackChanges);
+            var entity = _manager
+                .Employee
+                .GetEmployeeById(employee.Id, trackChanges);
 
             // when id not Found
             if (entity is null)
@@ -114,7 +110,10 @@ namespace Services.Concretes
 
             // update
             employee.RegisterDate = entity.RegisterDate;
-            _manager.Employee.UpdateEmployee(employee);
+            _manager
+                .Employee
+                .UpdateEmployee(employee);
+
             _manager.Save();
         }
 
@@ -148,9 +147,13 @@ namespace Services.Concretes
         }
 
 
-        public void DeleteEmployees(IEnumerable<Employee> entity)
+        public void DeleteEmployees(List<Employee> entity)
         {
-            _manager.Employee.DeleteEmployees(entity);
+            // delete employees
+            _manager
+                .Employee
+                .DeleteEmployees(entity);
+
             _manager.Save();
         }
 

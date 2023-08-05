@@ -41,7 +41,7 @@ namespace Repositories.Concretes
             base.Delete(empAndRole);
 
 
-        public void DeleteEmployeeAndRoles(IEnumerable<EmployeeAndRole> empAndRole) =>
+        public void DeleteEmployeeAndRoles(List<EmployeeAndRole> empAndRole) =>
             base.MultipleDelete(empAndRole);
     }
 }

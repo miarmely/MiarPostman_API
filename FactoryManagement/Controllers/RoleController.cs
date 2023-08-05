@@ -1,8 +1,7 @@
-﻿using Entities.Models;
-using FactoryManagement.Responses.Contracts;
+﻿using Entities.DataModels;
 using Microsoft.AspNetCore.Mvc;
-using Repositories.Contracts;
 using Services.Contracts;
+
 
 namespace FactoryManagement.Controllers
 {
@@ -12,15 +11,12 @@ namespace FactoryManagement.Controllers
     {
         private readonly IServiceManager _manager;
 
-        private readonly IResponseBase _response;
-
         private readonly ILogger<Role> _logger;
 
 
-        public RoleController(IServiceManager manager, IResponseBase response, ILogger<Role> logger)
+        public RoleController(IServiceManager manager, ILogger<Role> logger)
         {
             _manager = manager;
-            _response = response;
             _logger = logger;
         }
             
@@ -38,8 +34,9 @@ namespace FactoryManagement.Controllers
 
             catch (Exception ex)
             {
+                // when role is already exists
                 if (ex.Message.Equals("Conflict"))
-                    return _response.Conflict($"Role Name That:{role.RoleName} Is Already Exists.");
+                    return BadRequest($"Role Name That:{role.RoleName} Is Already Exists.");
 
                 _logger.LogError(ex.Message);
                 throw new Exception(ex.Message);
@@ -60,8 +57,9 @@ namespace FactoryManagement.Controllers
 
             catch (Exception ex)
             {
+                // when database is empty
                 if (ex.Message.Equals("Empty Database"))
-                    return _response.NotFound("Empty Database.");
+                    return NotFound("Empty Database.");
 
                 _logger.LogError(ex.Message);
                 throw new Exception(ex.Message);

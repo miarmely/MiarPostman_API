@@ -1,4 +1,4 @@
-﻿using Entities.Models;
+﻿using Entities.DataModels;
 using Repositories.Concrete;
 using Repositories.Contracts;
 using Repositories.EFCore;

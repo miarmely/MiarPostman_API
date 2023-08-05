@@ -1,16 +1,11 @@
-﻿using Microsoft.Identity.Client;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Services.Contracts
+﻿namespace Services.Contracts
 {
     public interface IServiceManager
     {
-        public IEmployeeService EmployeeService { get; }
-        public IRoleService RoleSevice { get; }
-        public IEmployeeAndRoleService EmployeeAndRoleService { get; }
+        IEmployeeService EmployeeService { get; }
+        IRoleService RoleSevice { get; }
+        IEmployeeAndRoleService EmployeeAndRoleService { get; }
+        IDataConverterService DataConverterService { get; }
+        IViewConverterService ViewConverterService { get; }
     }
 }   

@@ -4,9 +4,7 @@ using Repositories.Contracts;
 using Repositories.Concrete;
 using Services.Contracts;
 using Services.Concretes;
-using FactoryManagement.Responses.Contracts;
-using FactoryManagement.Responses.Concretes;
-using Microsoft.AspNetCore.Mvc;
+
 
 namespace EmployeeManagement_Sql.Extensions
 {
@@ -24,10 +22,6 @@ namespace EmployeeManagement_Sql.Extensions
 
         public static void ConfigureServiceManager(this IServiceCollection services) =>
             services.AddScoped<IServiceManager, ServiceManager>();
-
-
-        public static void ConfigureResponseBase(this IServiceCollection services) =>
-            services.AddScoped<IResponseBase, ResponseBase>();
 
 
         public static void ConfigureCors(this IServiceCollection services)

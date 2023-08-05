@@ -49,7 +49,7 @@ namespace Repositories.Concrete
             .Remove(entity);
 
 
-        public void MultipleDelete(IEnumerable<T> entity) =>
+        public void MultipleDelete(List<T> entity) =>
             _context.Set<T>()
             .RemoveRange(entity);
     }

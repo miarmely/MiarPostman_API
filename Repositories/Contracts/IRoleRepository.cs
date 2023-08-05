@@ -1,4 +1,4 @@
-﻿using Entities.Models;
+﻿using Entities.DataModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +10,9 @@ namespace Repositories.Contracts
 {
     public interface IRoleRepository : IRepositoryBase<Role>
     {
-        public void CreateRole(Role entity);
-        public IQueryable<Role> GetAllRoles(bool trackChanges);
-        public Role? GetById(int id, bool trackChanges);
-        public Role? GetByRoleName(string roolName, bool trackChanges);
+        void CreateRole(Role entity);
+        IQueryable<Role> GetAllRoles(bool trackChanges);
+        Role? GetById(int id, bool trackChanges);
+        Role? GetByRoleName(string roolName, bool trackChanges);
     }
 }

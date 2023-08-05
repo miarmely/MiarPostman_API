@@ -6,12 +6,12 @@ namespace Repositories.Contracts
 {
     public interface IRepositoryBase<T>
     {
-        public int Count { get; }
-        public IQueryable<T> FindAll(bool trackChanges);
-        public IQueryable<T> FindWithCondition(Expression<Func<T, bool>> expression, bool trackChanges);
-        public void Create(T entity);
-        public void Update(T entity);
-        public void Delete(T entity);
-        public void MultipleDelete(IEnumerable<T> entity);
+        int Count { get; }
+        IQueryable<T> FindAll(bool trackChanges);
+        IQueryable<T> FindWithCondition(Expression<Func<T, bool>> expression, bool trackChanges);
+        void Create(T entity);
+        void Update(T entity);
+        void Delete(T entity);
+        void MultipleDelete(List<T> entity);
     }
 }

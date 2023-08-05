@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
 using Services.Contracts;
-using FactoryManagement.Responses.Contracts;
-using System.Linq.Expressions;
-using Entities.Models;
-using Repositories.Migrations;
+using Entities.DataModels;
+using Entities.ViewModels;
+
 
 namespace EmployeeManagement_Sql.Controllers
 {
@@ -16,27 +15,39 @@ namespace EmployeeManagement_Sql.Controllers
 
         private readonly IServiceManager _manager;
 
-        private readonly IResponseBase _response;
-
-
-        public EmployeeController(ILogger<EmployeeController> logger, IServiceManager manager, IResponseBase response)
+       
+        public EmployeeController(ILogger<EmployeeController> logger, IServiceManager manager)
         {
             _logger = logger;
             _manager = manager;
-            _response = response;
         }
 
 
         [HttpPost]
-        public IActionResult AddOneEmployee([FromBody] Employee employee)
+        public IActionResult AddOneEmployee([FromBody] EmployeeView employeeView)
         {
             try
             {
-                _manager.EmployeeService.CreateEmployee(employee);
-                _manager.EmployeeAndRoleService.CreateEmployeeAndRole(employee);
+                // convert view to data models
+                var employee = _manager
+                    .DataConverterService
+                    .ConvertToEmployee(employeeView);
+
+                // create employee
+                _manager
+                    .EmployeeService
+                    .CreateEmployee(employee);
+
+                // set id
+                employeeView.Id = employee.Id;
+
+                // create employee and role
+                _manager
+                    .EmployeeAndRoleService
+                    .CreateEmpAndRole(employeeView);
 
                 _logger.LogInformation($"New Employee With id:{employee.Id} Created.");
-                return Ok(employee);
+                return Ok(employeeView);
             }
 
             catch (Exception ex)
@@ -53,8 +64,18 @@ namespace EmployeeManagement_Sql.Controllers
             try
             {
                 // get employees and fill roles
-                var entity = _manager.EmployeeService.GetAllEmployees(false);
-                _manager.EmployeeAndRoleService.FillRoles(ref entity);
+                var employeeList = _manager
+                    .EmployeeService
+                    .GetAllEmployees(false)
+                    .ToList();
+
+                var employeeViewList =_manager
+                    .ViewConverterService
+                    .MultipleConvertToEmployeeView(employeeList);
+
+                var entity = _manager
+                    .EmployeeAndRoleService
+                    .FillRoles(employeeViewList);
 
                 return Ok(entity);
             }
@@ -63,7 +84,7 @@ namespace EmployeeManagement_Sql.Controllers
             {
                 // when dataase is empty
                 if (ex.Message.Equals("Empty Database"))
-                    _response.NotFound("Empty Database.");
+                    return NotFound("Empty Database.");
 
                 _logger.LogError(ex.Message);
                 throw new Exception(ex.Message);
@@ -77,8 +98,17 @@ namespace EmployeeManagement_Sql.Controllers
             try
             {
                 // get one employee and fill roles
-                var entity = _manager.EmployeeService.GetEmployeeById(id, false);
-                _manager.EmployeeAndRoleService.FillRole(ref entity);
+                var employee = _manager
+                    .EmployeeService
+                    .GetEmployeeById(id, false);
+
+                var employeeView = _manager
+                    .ViewConverterService
+                    .ConvertToEmployeeView(employee);
+                
+                var entity = _manager
+                    .EmployeeAndRoleService
+                    .FillRole(employeeView);
 
                 return Ok(entity);
             }
@@ -87,7 +117,7 @@ namespace EmployeeManagement_Sql.Controllers
             {
                 // when id not found
                 if (ex.Message.Equals("Not Matched"))
-                    return _response.NotFound($"Id:{id} Not Found.");
+                    return NotFound($"Id:{id} Not Found.");
 
                 _logger.LogError(ex.Message);
                 throw new Exception(ex.Message);
@@ -108,8 +138,18 @@ namespace EmployeeManagement_Sql.Controllers
             try
             {
                 // get employees and fill 
-                var entity = _manager.EmployeeService.GetEmployeesByCondition(id, fullName, lastName, job, salary, roles, registerDate, false);
-                _manager.EmployeeAndRoleService.FillRoles(ref entity);
+                var employeeList = _manager
+                    .EmployeeService
+                    .GetEmployeesByCondition(id, fullName, lastName, job, salary, roles, registerDate, false)
+                    .ToList();
+
+                var employeeViewList = _manager
+                    .ViewConverterService
+                    .MultipleConvertToEmployeeView(employeeList);
+                    
+                var entity = _manager
+                    .EmployeeAndRoleService
+                    .FillRoles(employeeViewList);
 
                 return Ok(entity);
             }
@@ -119,9 +159,9 @@ namespace EmployeeManagement_Sql.Controllers
                 switch (ex.Message)
                 {
                     case "Empty Database":
-                        return _response.NotFound("Empty Database.");
+                        return NotFound("Empty Database.");
                     case "Not Matched":
-                        return _response.NotFound("Not Matched With Any Employee.");
+                        return NotFound("Not Matched With Any Employee.");
                 }
 
                 _logger.LogError(ex.Message);
@@ -131,25 +171,40 @@ namespace EmployeeManagement_Sql.Controllers
 
 
         [HttpPut]
-        public IActionResult UpdateOneEmployee([FromBody] Employee employee)
+        public IActionResult UpdateOneEmployee([FromBody] EmployeeView employeeView)
         {
             try
             {
-                _manager.EmployeeService.UpdateOneEmployee(employee.Id, ref employee, false);
+                // convert view to data models
+                var employee = _manager
+                .DataConverterService
+                .ConvertToEmployee(employeeView);
+
+                // update employee
+                _manager
+                    .EmployeeService
+                    .UpdateOneEmployee(employee, false);
+
+                // add register date to view
+                employeeView.RegisterDate = employee
+                    .RegisterDate
+                    .ToString();
 
                 // when roles changed
-                if (employee.Roles.Count != 0)
-                    _manager.EmployeeAndRoleService.UpdateRelations(employee);
+                if (employeeView.Roles.Count != 0)
+                    _manager
+                        .EmployeeAndRoleService
+                        .UpdateRelations(employeeView);
 
                 _logger.LogWarning($"Employee Who Id:{employee.Id} Updated.");
-                return Ok(employee);
+                return Ok(employeeView);
             }
 
             catch (Exception ex)
             {
                 // when id not matched
                 if (ex.Message.Equals("Not Matched"))
-                    return _response.NotFound($"Id:{employee.Id} Not Found.");
+                    return NotFound($"Id:{employeeView.Id} Not Found.");
 
                 _logger.LogError(ex.Message);
                 throw new Exception(ex.Message);
@@ -163,7 +218,9 @@ namespace EmployeeManagement_Sql.Controllers
         {
             try
             {
-                var entity = _manager.EmployeeService.PartiallyUpdateOneEmployee(id, employeePatch, false);
+                var entity = _manager
+                    .EmployeeService
+                    .PartiallyUpdateOneEmployee(id, employeePatch, false);
 
                 _logger.LogWarning($"Employee Who Id:{id} Partially Updated.");
                 return Ok(entity);
@@ -173,7 +230,7 @@ namespace EmployeeManagement_Sql.Controllers
             {
                 // when id not found
                 if (ex.Message.Equals("Not Matched"))
-                    return _response.NotFound($"Id:{id} Not Found");
+                    return NotFound($"Id:{id} Not Found");
 
                 _logger.LogError(ex.Message);
                 throw new Exception(ex.Message);
@@ -186,7 +243,15 @@ namespace EmployeeManagement_Sql.Controllers
         {
             try
             {
-                _manager.EmployeeService.DeleteOneEmployee(id);
+                // delete employee
+                _manager
+                    .EmployeeService
+                    .DeleteOneEmployee(id);
+
+                // delete empAndRoles
+                _manager
+                    .EmployeeAndRoleService
+                    .DeleteEmpAndRolesByEmployeeId(id);
 
                 _logger.LogWarning($"Employee Who Id:{id} Deleted!..");
                 return NoContent();
@@ -196,7 +261,7 @@ namespace EmployeeManagement_Sql.Controllers
             {
                 // when id not matched
                 if (ex.Message.Equals("Not Matched"))
-                    return _response.NotFound($"Id:{id} Not Matched.");
+                    return NotFound($"Id:{id} Not Matched.");
 
                 _logger.LogError(ex.Message);
                 throw new Exception(ex.Message);
@@ -205,21 +270,25 @@ namespace EmployeeManagement_Sql.Controllers
 
 
         [HttpDelete]
-        public IActionResult MultipleDelete([FromBody] Employee employee)
+        public IActionResult MultipleDelete([FromBody] EmployeeView employeeView)
         {
-            // add role names to list
-            var roleNames = new List<string>();
-            foreach (var role in employee.Roles)
-                roleNames.Append(role.RoleName);
-
             try
             {
                 // get matched employees
-                var entity = _manager.EmployeeService.GetEmployeesByCondition(employee.Id, employee.FullName, employee.LastName,
-                    employee.Job, employee.Salary, roleNames, employee.RegisterDate.ToString(), false);
+                var entity = _manager
+                    .EmployeeService
+                    .GetEmployeesByCondition(employeeView.Id, employeeView.FullName, employeeView.LastName, employeeView.Job, employeeView.Salary, employeeView.Roles, employeeView.RegisterDate, false)
+                    .ToList();
 
-                //_manager.EmployeeService.DeleteEmployees(entity);
-                //_manager.EmployeeAndRoleService.DeleteEmpAndRolesByEmployeeId(employee.Id);
+                // delete employee
+                _manager
+                    .EmployeeService
+                    .DeleteEmployees(entity);
+
+                // delete empAndRoles
+                _manager
+                    .EmployeeAndRoleService
+                    .MultiDeleteEmpAndRoles(entity);
 
                 _logger.LogWarning("Some Employees Deleted.");
                 return NoContent();
@@ -229,8 +298,8 @@ namespace EmployeeManagement_Sql.Controllers
             {
                 switch (ex.Message)
                 {
-                    case "Empty Database": return _response.NotFound("Empty Database.");
-                    case "Not Matched": return _response.NotFound("Not Matched.");
+                    case "Empty Database": return NotFound("Empty Database.");
+                    case "Not Matched": return NotFound("Not Matched.");
                 }
 
                 _logger.LogError(ex.Message);

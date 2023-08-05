@@ -1,4 +1,4 @@
-﻿using Entities.Models;
+﻿using Entities.DataModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ namespace Services.Contracts
 {
     public interface IRoleService
     {
-        public void CreateRole(Role role);
-        public IEnumerable<Role> GetAllRoles(bool trackChanges);
+        void CreateRole(Role role);
+        IEnumerable<Role> GetAllRoles(bool trackChanges);
     }
 }

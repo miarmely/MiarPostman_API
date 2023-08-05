@@ -5,19 +5,19 @@ using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using Entities.Models;
+using Entities.DataModels;
 
 
 namespace Repositories.Contracts
 {
     public interface IEmployeeRepository : IRepositoryBase<Employee>
     {
-        public void CreateEmployee(Employee employee);
-        public Employee? GetEmployeeById(int id, bool trackChanges);
-        public IQueryable<Employee> GetEmployeeByCondition(Expression<Func<Employee, bool>> expression, bool trackChanges);
-        public IQueryable<Employee> GetAllEmployees(bool trackChanges);
-        public void UpdateEmployee(Employee employee);
-        public void DeleteOneEmployee(Employee employee);
-        public void DeleteEmployees(IEnumerable<Employee> entity);
+        void CreateEmployee(Employee employee);
+        Employee? GetEmployeeById(int id, bool trackChanges);
+        IQueryable<Employee> GetEmployeeByCondition(Expression<Func<Employee, bool>> expression, bool trackChanges);
+        IQueryable<Employee> GetAllEmployees(bool trackChanges);
+        void UpdateEmployee(Employee employee);
+        void DeleteOneEmployee(Employee employee);
+        void DeleteEmployees(List<Employee> entity);
     }
 }

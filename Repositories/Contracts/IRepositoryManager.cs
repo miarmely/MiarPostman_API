@@ -12,6 +12,6 @@ namespace Repositories.Contracts
         IEmployeeRepository Employee { get; }
         IEmployeeAndRoleRepository EmployeeAndRole { get; }
         IRoleRepository Role { get; }
-        public void Save();  // for to save changes of all CRUD process as Dynamic
+        void Save();  // for to save changes of all CRUD process as Dynamic
     }
 }

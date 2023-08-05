@@ -12,7 +12,6 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.ConfigureDbContext(builder.Configuration);
 builder.Services.ConfigureRepositoryManager();
 builder.Services.ConfigureServiceManager();
-builder.Services.ConfigureResponseBase();
 builder.Services.ConfigureCors();
 
 // add logger

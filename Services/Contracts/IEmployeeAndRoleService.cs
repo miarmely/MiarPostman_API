@@ -1,18 +1,15 @@
-﻿using Entities.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Entities.DataModels;
+using Entities.ViewModels;
 
 namespace Services.Contracts
 {
     public interface IEmployeeAndRoleService
     {
-        public void CreateEmployeeAndRole(Employee employee);
-        public void FillRoles(ref IEnumerable<Employee> employees);
-        public void FillRole(ref Employee employee);
-        public void UpdateRelations(Employee employeeOnQuery);
-        public void DeleteEmpAndRolesByEmployeeId(int employeeId);
+        void CreateEmpAndRole(EmployeeView employeeView);
+        List<EmployeeView> FillRoles(List<EmployeeView> employeeViews);
+        EmployeeView FillRole(EmployeeView employeeView);
+        void UpdateRelations(EmployeeView employeeView);
+        void DeleteEmpAndRolesByEmployeeId(int employeeId);
+        void MultiDeleteEmpAndRoles(List<Employee> employees);
     }
 }

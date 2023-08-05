@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Entities.Models;
+using Entities.DataModels;
 using Repositories.EFCore.Config;
 using Entities.RelationModels;
 

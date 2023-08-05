@@ -1,4 +1,4 @@
-﻿using Entities.Models;
+﻿using Entities.DataModels;
 using Microsoft.EntityFrameworkCore.Internal;
 using Repositories.Concretes;
 using Repositories.Contracts;
@@ -42,7 +42,7 @@ namespace Repositories.Concrete
             base.Delete(entity);
 
 
-        public void DeleteEmployees(IEnumerable<Employee> entity) =>
+        public void DeleteEmployees(List<Employee> entity) =>
             base.MultipleDelete(entity);            
     }
 }
